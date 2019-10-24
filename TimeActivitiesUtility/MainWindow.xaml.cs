@@ -41,39 +41,35 @@ namespace TimeActivitiesUtility
 
         private void ReadData()
         {
+            IEnumerable<Data.ActivityTimerRow> rows;
             using (System.IO.StreamReader sReader = new System.IO.StreamReader(strFilePath))
+            using (CsvHelper.CsvReader csvReader = new CsvHelper.CsvReader(sReader))
             {
-                using (CsvHelper.CsvReader csvReader = new CsvHelper.CsvReader(sReader, new CsvHelper.Configuration.Configuration() { HasHeaderRecord = false }))
+                rows = csvReader.GetRecords<Data.ActivityTimerRow>();
+                foreach (Data.ActivityTimerRow row in rows)
                 {
-                    csvReader.Read(); // first line
-                    while (csvReader.Read())
-                    {
-                        AddTimer(new ActivityTimer(TimeSpan.FromHours(csvReader.GetField<double>(1)), csvReader.GetField<string>(0)));
-                    }
+                    AddTimer(new ActivityTimer(TimeSpan.FromHours(row.TotalHours), row.ActivityText));
                 }
             }
+
             UpdateUI();
         }
 
         private void WriteData()
         {
-            using (var sWriter = new System.IO.StreamWriter(strFilePath)) {
-                using (var csvWriter = new CsvHelper.CsvWriter(sWriter))
+            List<Data.ActivityTimerRow> rows = new List<Data.ActivityTimerRow>();
+            for (int i = 1; i < TimersStack.Children.Count; i++)
+            {
+                if (TimersStack.Children[i] is ActivityTimer currTimer)
                 {
-                    csvWriter.WriteField("Activity Text");
-                    csvWriter.WriteField("Total Hours");
-                    csvWriter.NextRecord();
-
-                    for (int i = 1; i < TimersStack.Children.Count; i++)
-                    {
-                        if (TimersStack.Children[i] is ActivityTimer currTimer)
-                        {
-                            csvWriter.WriteField(currTimer.ActivityDescription);
-                            csvWriter.WriteField(currTimer.Timer.TotalHours);
-                            csvWriter.NextRecord();
-                        }
-                    }
+                    rows.Add(currTimer.GetModel());
                 }
+            }
+
+            using (var sWriter = new System.IO.StreamWriter(strFilePath))
+            using (var csvWriter = new CsvHelper.CsvWriter(sWriter))
+            {
+                csvWriter.WriteRecords(rows);
             }
         }
 

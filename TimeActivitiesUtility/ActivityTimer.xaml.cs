@@ -33,6 +33,7 @@ namespace TimeActivitiesUtility
             UpdateUI();
         }
 
+        #region Model Interfacing
         public string ActivityDescription
         {
             get
@@ -45,15 +46,23 @@ namespace TimeActivitiesUtility
             }
         }
 
+        public TimeSpan Timer { get; protected set; } = TimeSpan.Zero;
+
+        public Data.ActivityTimerRow GetModel()
+        {
+            return new Data.ActivityTimerRow() { ActivityText=ActivityDescription, TotalHours= Timer.TotalHours };
+        }
+        #endregion
+
+        public bool IsTimerEnabled { get; protected set; }
+
         public delegate void TimerUpdatedEventHandler(ActivityTimer activityTimer, TimeSpan elapsed);
         public event TimerUpdatedEventHandler TimerUpdated;
 
         public delegate void DeleteRequestedEventHandler(ActivityTimer activityTimer);
         public event DeleteRequestedEventHandler DeleteRequested;
 
-        public bool IsTimerEnabled { get; protected set; }
 
-        public TimeSpan Timer { get; protected set; } = TimeSpan.Zero;
 
         public void Tick()
         {
