@@ -25,6 +25,7 @@ namespace TimeActivitiesUtility
             InitializeComponent();
         }
 
+#if false
         public ActivityTimer(TimeSpan timer, string text)
         {
             InitializeComponent();
@@ -33,7 +34,7 @@ namespace TimeActivitiesUtility
             UpdateUI();
         }
 
-        #region Model Interfacing
+#region Model Interfacing
         public string ActivityDescription
         {
             get
@@ -52,7 +53,7 @@ namespace TimeActivitiesUtility
         {
             return new Data.ActivityTimerRow() { ActivityText=ActivityDescription, TotalHours= Timer.TotalHours };
         }
-        #endregion
+#endregion
 
         public bool IsTimerEnabled { get; protected set; }
 
@@ -145,5 +146,6 @@ namespace TimeActivitiesUtility
         {
             DeleteRequested?.Invoke(this);
         }
+#endif
     }
 }

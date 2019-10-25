@@ -3,11 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
         xmlns:local="clr-namespace:TimeActivitiesUtility"
+        xmlns:vm="clr-namespace:TimeActivitiesUtility.ViewModel"
         mc:Ignorable="d"
         Icon="./K Timer.ico"
         Title="Time Activities Utility" Height="450" Width="800"
-        Closing="Window_Closing">
+        DataContext="{dx:ViewModelSource Type=vm:MainWindowVM}">
+    <Window.Resources>
+        <!-- map the ActivityTimerVM to the ActivityTimer UserControl view -->
+        <DataTemplate DataType="{x:Type vm:ActivityTimerVM}">
+            <local:ActivityTimer />
+        </DataTemplate>
+    </Window.Resources>
+    <dx:Interaction.Behaviors>
+        <dx:EventToCommand EventName="Closing" Command="{Binding WriteDataCommand}" PassEventArgsToCommand="False" />
+    </dx:Interaction.Behaviors>
     <StackPanel Orientation="Vertical" Name="TimersStack">
         <Grid>
             <Grid.ColumnDefinitions>
@@ -17,10 +28,11 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="80" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Name="AddNewTimerButton" Content="Add" Margin="3" Click="AddNewTimerButton_Click" />
-            <Button Grid.Column="1" Name="ResetAllimersButton" Content="Reset All" Margin="3" Click="ResetAllTimersButton_Click" />
-            <Button Grid.Column="2" Name="DeleteAllTimersButton" Content="Delete All" Margin="3" Click="DeleteAllTimersButton_Click" />
-            <Label Grid.Column="4" Name="TimeLabel" VerticalAlignment="Center" FontWeight="Bold" FontSize="16px" Content="00:00" HorizontalAlignment="Center" Margin="3" />
+            <Button Grid.Column="0" Name="AddNewTimerButton" Content="Add" Margin="3" Command="{Binding AddNewTimerCommand}" />
+            <Button Grid.Column="1" Name="ResetAllTimersButton" Content="Reset All" Margin="3" Command="{Binding ResetAllTimersCommand}" />
+            <Button Grid.Column="2" Name="DeleteAllTimersButton" Content="Delete All" Margin="3" Command="{Binding DeleteAllTimersCommand}" />
+            <Label Grid.Column="4" Name="TimeLabel" VerticalAlignment="Center" FontWeight="Bold" FontSize="16px" Content="{Binding TotalTime}" HorizontalAlignment="Center" Margin="3" />
         </Grid>
+        <ItemsControl ItemsSource="{Binding Path=TimerCollection}" />
     </StackPanel>
 </Window>
