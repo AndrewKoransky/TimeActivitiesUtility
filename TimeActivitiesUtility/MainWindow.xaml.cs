@@ -24,6 +24,7 @@ namespace TimeActivitiesUtility
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = ViewModel.MainWindowVM.Create(new Service.UpdateTimerDialogService());
         }
     }
 }

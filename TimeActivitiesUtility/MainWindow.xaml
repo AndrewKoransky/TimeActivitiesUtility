@@ -8,8 +8,7 @@
         xmlns:vm="clr-namespace:TimeActivitiesUtility.ViewModel"
         mc:Ignorable="d"
         Icon="./K Timer.ico"
-        Title="Time Activities Utility" Height="450" Width="800"
-        DataContext="{dx:ViewModelSource Type=vm:MainWindowVM}">
+        Title="Time Activities Utility" Height="450" Width="800">
     <Window.Resources>
         <!-- map the ActivityTimerVM to the ActivityTimer UserControl view -->
         <DataTemplate DataType="{x:Type vm:ActivityTimerVM}">

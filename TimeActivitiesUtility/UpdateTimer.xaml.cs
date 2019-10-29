@@ -10,19 +10,24 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace TimeActivitiesUtility
 {
     /// <summary>
-    /// Interaction logic for ActivityTimer.xaml
+    /// Interaction logic for UpdateTimeDialog.xaml
     /// </summary>
-    public partial class ActivityTimer : UserControl
+    public partial class UpdateTimer : Window
     {
-        public ActivityTimer()
+        public UpdateTimer()
         {
             InitializeComponent();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Keyboard.Focus(TimerDisplayTextBox);
+            TimerDisplayTextBox.SelectAll();
         }
     }
 }

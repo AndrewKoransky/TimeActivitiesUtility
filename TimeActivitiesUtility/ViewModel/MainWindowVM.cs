@@ -13,8 +13,12 @@ namespace TimeActivitiesUtility.ViewModel
     [POCOViewModel]
     public class MainWindowVM
     {
-        protected MainWindowVM()
+        protected Service.IUpdateTimerDialogService dlgSvc;
+
+        protected MainWindowVM(Service.IUpdateTimerDialogService dlgSvc)
         {
+            this.dlgSvc = dlgSvc;
+
             TimerCollection = new ObservableCollection<ActivityTimerVM>();
 
             ReadData();
@@ -22,9 +26,9 @@ namespace TimeActivitiesUtility.ViewModel
             StartMasterTimer();
         }
 
-        public static MainWindowVM Create()
+        public static MainWindowVM Create(Service.IUpdateTimerDialogService dlgSvc)
         {
-            return ViewModelSource.Create(() => new MainWindowVM());
+            return ViewModelSource.Create(() => new MainWindowVM(dlgSvc));
         }
 
         #region Bindable properties
@@ -74,10 +78,20 @@ namespace TimeActivitiesUtility.ViewModel
         {
             timerVm.DeleteRequested += DeleteTimer;
             timerVm.TimerManuallyUpdated += TimerManuallyUpdated;
-            TimerCollection.Add(timerVm);
+            timerVm.EditTimerRequested += EditTimerRequested;
+            TimerCollection.Add(timerVm);   
             // Calling UpdateTotalTime() is not needed here... 
             // The timer will either be zero (adding from the UI), 
             // or it is being read on ReadData() in which case the total will be calculated upon completion.
+        }
+
+        private void EditTimerRequested(ActivityTimerVM activityTimer)
+        {
+            TimeSpan? rc = dlgSvc.ShowDialog(activityTimer.Timer);
+            if (rc.HasValue)
+            {
+                activityTimer.Timer = rc.Value;
+            }
         }
 
         protected void DeleteTimer(ActivityTimerVM timerVm)
@@ -150,7 +164,7 @@ namespace TimeActivitiesUtility.ViewModel
 
         #region Persistence
 
-        private string strFilePath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + System.IO.Path.DirectorySeparatorChar + "TimeActivitiesUtility2.csv";
+        private string strFilePath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + System.IO.Path.DirectorySeparatorChar + "TimeActivitiesUtility.csv";
 
         public bool ReadData()
         {

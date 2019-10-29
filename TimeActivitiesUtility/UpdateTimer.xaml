@@ -1,0 +1,41 @@
+﻿<Window x:Class="TimeActivitiesUtility.UpdateTimer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+        xmlns:local="clr-namespace:TimeActivitiesUtility"
+        xmlns:vm="clr-namespace:TimeActivitiesUtility.ViewModel"
+        mc:Ignorable="d"
+        DataContext="{dx:ViewModelSource Type=vm:UpdateTimerVM}"
+        WindowStartupLocation="CenterOwner"
+        Height="150" Width="360"
+        Loaded="Window_Loaded">
+    <StackPanel Orientation="Vertical">
+        <FlowDocumentScrollViewer ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" Margin="20,5">
+            <FlowDocument FontSize="12"
+                               FontFamily="Segoe UI" 
+                               Foreground="Black"
+                               TextAlignment="left"
+                               PagePadding="0">
+                <Paragraph TextIndent="-10" 
+                                Margin="10,0,0,0">
+                    Please enter time
+                    <LineBreak/>
+                    (fractional hours or time span [hh:mm] supported)
+                </Paragraph>
+            </FlowDocument>
+        </FlowDocumentScrollViewer>
+        <TextBox Margin="20,5" Text="{Binding TimerDisplayText}" Name="TimerDisplayTextBox"></TextBox>
+        <Grid Margin="20,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="70" />
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="1" Width="60" Margin="5" IsDefault="true" Command="{Binding OkCommand}">OK</Button>
+            <Button Grid.Column="2" Width="60" Margin="5,5,0,5" IsCancel="True" HorizontalAlignment="right" Command="{Binding CancelCommand}">Cancel</Button>
+        </Grid>
+    </StackPanel>
+</Window>

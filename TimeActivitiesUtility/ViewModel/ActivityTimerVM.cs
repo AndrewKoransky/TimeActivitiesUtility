@@ -40,7 +40,7 @@ namespace TimeActivitiesUtility.ViewModel
             {
                 return _theTimer;
             }
-            protected set {
+            set {
                 _theTimer = value;
                 if (_theTimer.Seconds % 2 == 0)
                 {
@@ -87,6 +87,11 @@ namespace TimeActivitiesUtility.ViewModel
             IsTimerEnabled = !IsTimerEnabled;
         }
 
+        public void EditTimer()
+        {
+            EditTimerRequested(this);
+        }
+
         #endregion
 
         #region Events
@@ -95,6 +100,9 @@ namespace TimeActivitiesUtility.ViewModel
 
         public delegate void DeleteRequestedEventHandler(ActivityTimerVM activityTimer);
         public event DeleteRequestedEventHandler DeleteRequested;
+
+        public delegate void EditTimerEventHandler(ActivityTimerVM activityTimer);
+        public event EditTimerEventHandler EditTimerRequested;
         #endregion
 
         public void Tick()

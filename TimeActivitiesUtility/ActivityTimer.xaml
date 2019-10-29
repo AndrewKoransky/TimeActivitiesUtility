@@ -76,7 +76,13 @@
             Content="{Binding TimerDisplayText}"
             FontSize="16px"
             FontWeight="Bold" 
-            Style="{StaticResource TimerLabel}">
+            Style="{StaticResource TimerLabel}"
+            xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseUp" >
+                    <i:InvokeCommandAction Command="{Binding EditTimerCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
         </Label>
         <Button
             Grid.Column="3"
