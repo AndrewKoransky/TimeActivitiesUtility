@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 namespace TimeActivitiesUtility.ViewModel
 {
     [POCOViewModel]
-    public class ActivityTimerVM
+    public class ActivityTimerVM // : DevExpress.Mvvm.ISupportParentViewModel
     {
+        // public object ParentViewModel { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         protected ActivityTimerVM() { }
         public static ActivityTimerVM Create()
         {
@@ -41,6 +43,7 @@ namespace TimeActivitiesUtility.ViewModel
                 return _theTimer;
             }
             set {
+                bool bNotify = (_theTimer != value);
                 _theTimer = value;
                 if (_theTimer.Seconds % 2 == 0)
                 {
@@ -49,6 +52,10 @@ namespace TimeActivitiesUtility.ViewModel
                 else
                 {
                     TimerDisplayText = string.Format("{0:00} {1:00}", Convert.ToInt32(Math.Floor(_theTimer.TotalHours)), Convert.ToInt32(_theTimer.Minutes));
+                }
+                if (bNotify)
+                {
+                    this.RaisePropertyChanged(x=>x.Timer);
                 }
             }
         }
@@ -79,7 +86,6 @@ namespace TimeActivitiesUtility.ViewModel
         {
             IsTimerEnabled = false;
             Timer = TimeSpan.Zero;
-            TimerManuallyUpdated(this,Timer);
         }
 
         public void StartStop()
@@ -89,20 +95,20 @@ namespace TimeActivitiesUtility.ViewModel
 
         public void EditTimer()
         {
-            EditTimerRequested(this);
+            TimeSpan? rc = UpdateTimerDialogService.ShowDialog(Timer);
+            if (rc.HasValue)
+            {
+                Timer = rc.Value;
+            }
         }
+
+        public virtual Service.IUpdateTimerDialogService UpdateTimerDialogService { get { return null;  } }
 
         #endregion
 
         #region Events
-        public delegate void TimerManuallyUpdatedEventHandler(ActivityTimerVM activityTimer, TimeSpan elapsed);
-        public event TimerManuallyUpdatedEventHandler TimerManuallyUpdated;
-
         public delegate void DeleteRequestedEventHandler(ActivityTimerVM activityTimer);
         public event DeleteRequestedEventHandler DeleteRequested;
-
-        public delegate void EditTimerEventHandler(ActivityTimerVM activityTimer);
-        public event EditTimerEventHandler EditTimerRequested;
         #endregion
 
         public void Tick()

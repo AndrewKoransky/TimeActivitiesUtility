@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TimeActivitiesUtility.Service
 {
-    public class UpdateTimerDialogService : IUpdateTimerDialogService
+    public class UpdateTimerDialogService : DevExpress.Mvvm.UI.ServiceBase, IUpdateTimerDialogService
     {
         private UpdateTimer dialogUI;
 

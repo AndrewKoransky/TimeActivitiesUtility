@@ -21,6 +21,8 @@ namespace TimeActivitiesUtility.ViewModel
 
             TimerCollection = new ObservableCollection<ActivityTimerVM>();
 
+            TimerCollection.CollectionChanged += TimerCollection_CollectionChanged;
+
             ReadData();
 
             StartMasterTimer();
@@ -77,37 +79,32 @@ namespace TimeActivitiesUtility.ViewModel
         protected void AddTimer(ActivityTimerVM timerVm)
         {
             timerVm.DeleteRequested += DeleteTimer;
-            timerVm.TimerManuallyUpdated += TimerManuallyUpdated;
-            timerVm.EditTimerRequested += EditTimerRequested;
+            (timerVm as System.ComponentModel.INotifyPropertyChanged).PropertyChanged += TimerVM_PropertyChanged;
             TimerCollection.Add(timerVm);   
-            // Calling UpdateTotalTime() is not needed here... 
-            // The timer will either be zero (adding from the UI), 
-            // or it is being read on ReadData() in which case the total will be calculated upon completion.
         }
 
-        private void EditTimerRequested(ActivityTimerVM activityTimer)
+        private void TimerVM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            TimeSpan? rc = dlgSvc.ShowDialog(activityTimer.Timer);
-            if (rc.HasValue)
+            if ("Timer".Equals(e.PropertyName))
             {
-                activityTimer.Timer = rc.Value;
+                UpdateTotalTime();
             }
         }
+
+        private void TimerCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            UpdateTotalTime();
+        }
+
 
         protected void DeleteTimer(ActivityTimerVM timerVm)
         {
             timerVm.DeleteRequested -= DeleteTimer;
-            timerVm.TimerManuallyUpdated -= TimerManuallyUpdated;
+            (timerVm as System.ComponentModel.INotifyPropertyChanged).PropertyChanged -= TimerVM_PropertyChanged;
             TimerCollection.Remove(timerVm);
-            UpdateTotalTime();
         }
 
         public virtual ObservableCollection<ActivityTimerVM> TimerCollection { get; set; }
-
-        void TimerManuallyUpdated(ActivityTimerVM timerVM, TimeSpan elapsed)
-        {
-            UpdateTotalTime();
-        }
 
         private TimeSpan totalTimeSpan = TimeSpan.Zero;
         private void UpdateTotalTime()
@@ -128,7 +125,7 @@ namespace TimeActivitiesUtility.ViewModel
             }
 
             // if the visible total time has changed, save the data...
-            if ((prevTotalTimeSpan.TotalHours != totalTimeSpan.TotalHours) || (prevTotalTimeSpan.Minutes != totalTimeSpan.Minutes))
+            if ((prevTotalTimeSpan.Hours != totalTimeSpan.Hours) || (prevTotalTimeSpan.Minutes != totalTimeSpan.Minutes))
             {
                 WriteData();
             }
@@ -156,8 +153,6 @@ namespace TimeActivitiesUtility.ViewModel
                     timerVM.Tick();
                 }
             }
-
-            UpdateTotalTime();
         }
 
         #endregion
@@ -166,44 +161,65 @@ namespace TimeActivitiesUtility.ViewModel
 
         private string strFilePath = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + System.IO.Path.DirectorySeparatorChar + "TimeActivitiesUtility.csv";
 
+        bool isIOInProgress = false;
         public bool ReadData()
         {
-            if (System.IO.File.Exists(strFilePath))
-            {
-                TimerCollection.Clear();
+            if (isIOInProgress) return false;
 
-                // read the model...
-                IEnumerable<Data.ActivityTimerRow> rows;
-                using (System.IO.StreamReader sReader = new System.IO.StreamReader(strFilePath))
-                using (CsvHelper.CsvReader csvReader = new CsvHelper.CsvReader(sReader))
+            try
+            {
+                isIOInProgress = true;
+                if (System.IO.File.Exists(strFilePath))
                 {
-                    rows = csvReader.GetRecords<Data.ActivityTimerRow>();
-                    foreach (Data.ActivityTimerRow row in rows)
+                    TimerCollection.Clear();
+
+                    // read the model...
+                    IEnumerable<Data.ActivityTimerRow> rows;
+                    using (System.IO.StreamReader sReader = new System.IO.StreamReader(strFilePath))
+                    using (CsvHelper.CsvReader csvReader = new CsvHelper.CsvReader(sReader))
                     {
-                        // and update the ViewModel from the Model...
-                        AddTimer(ActivityTimerVM.Create(TimeSpan.FromHours(row.TotalHours), row.ActivityText));
+                        rows = csvReader.GetRecords<Data.ActivityTimerRow>();
+                        foreach (Data.ActivityTimerRow row in rows)
+                        {
+                            // and update the ViewModel from the Model...
+                            AddTimer(ActivityTimerVM.Create(TimeSpan.FromHours(row.TotalHours), row.ActivityText));
+                        }
                     }
+                    return true;
                 }
-                UpdateTotalTime();
-                return true;
+                return false;
             }
-            return false;
+            finally
+            {
+                isIOInProgress = false;
+            }
         }
 
         public void WriteData()
         {
-            // convert ActivityTimer View Model to Model...
-            List<Data.ActivityTimerRow> rows = new List<Data.ActivityTimerRow>();
-            foreach (ActivityTimerVM timerVM in TimerCollection)
-            {
-                rows.Add(timerVM.GetModel());
-            }
+            if (isIOInProgress) return;
 
-            // write the model out...
-            using (var sWriter = new System.IO.StreamWriter(strFilePath))
-            using (var csvWriter = new CsvHelper.CsvWriter(sWriter))
+            try
             {
-                csvWriter.WriteRecords(rows);
+                isIOInProgress = true;
+
+                // convert ActivityTimer View Model to Model...
+                List<Data.ActivityTimerRow> rows = new List<Data.ActivityTimerRow>();
+                foreach (ActivityTimerVM timerVM in TimerCollection)
+                {
+                    rows.Add(timerVM.GetModel());
+                }
+
+                // write the model out...
+                using (var sWriter = new System.IO.StreamWriter(strFilePath))
+                using (var csvWriter = new CsvHelper.CsvWriter(sWriter))
+                {
+                    csvWriter.WriteRecords(rows);
+                }
+            }
+            finally
+            {
+                isIOInProgress = false;
             }
         }
 

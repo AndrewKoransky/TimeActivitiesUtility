@@ -6,10 +6,14 @@
     xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
     xmlns:local="clr-namespace:TimeActivitiesUtility"
     xmlns:vm="clr-namespace:TimeActivitiesUtility.ViewModel"
+    xmlns:svc="clr-namespace:TimeActivitiesUtility.Service"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignStyle="{StaticResource DesignStyleUserControlBackgroundWhite}"
     d:DesignWidth="500">
+    <dx:Interaction.Behaviors>
+        <svc:UpdateTimerDialogService x:Name="UpdateTimerDialogService" />
+    </dx:Interaction.Behaviors>
     <UserControl.Resources>
         <Style x:Key="TimerLabel"  TargetType="Label">
             <Style.Triggers>
