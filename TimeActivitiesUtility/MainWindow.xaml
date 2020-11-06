@@ -7,6 +7,8 @@
         xmlns:local="clr-namespace:TimeActivitiesUtility"
         xmlns:vm="clr-namespace:TimeActivitiesUtility.ViewModel"
         mc:Ignorable="d"
+        Closing="Window_Closing"
+        SourceInitialized="Window_SourceInitialized"
         Icon="./K Timer.ico"
         Title="Time Activities Utility" Width="800" Height="450" MinWidth="500" MinHeight="150">
     <Window.Resources>
