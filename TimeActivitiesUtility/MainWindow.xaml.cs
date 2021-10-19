@@ -62,5 +62,67 @@ namespace TimeActivitiesUtility
                 WindowState = WindowState.Maximized;
             }
         }
+
+        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj != null)
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                {
+                    var child = VisualTreeHelper.GetChild(depObj, i);
+
+                    if (child != null && child is T)
+                        yield return (T)child;
+
+                    foreach (T childOfChild in FindVisualChildren<T>(child))
+                        yield return childOfChild;
+                }
+            }
+        }
+
+        private void Search_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            foreach (TextBox tb in FindVisualChildren<TextBox>(this))
+            {
+                if (tb != sender) {
+                    if (string.IsNullOrEmpty(Search.Text)) 
+                    {
+                        tb.Background = Brushes.Transparent;
+                    }
+                    else if (tb.Text.IndexOf(Search.Text, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        tb.Background = Brushes.LightPink;
+                        tb.Select(tb.Text.IndexOf(Search.Text, StringComparison.OrdinalIgnoreCase), Search.Text.Length);
+                        tb.BringIntoView();
+                    }
+                    else
+                    {
+                        tb.Background = Brushes.Transparent;
+                    }
+                }
+            }
+        }
+
+        private void Search_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Return)
+            {
+                if (string.IsNullOrEmpty(Search.Text))
+                {
+                    return;
+                }
+                foreach (TextBox tb in FindVisualChildren<TextBox>(this))
+                {
+                    if (tb != sender)
+                    {
+                        if (tb.Text.IndexOf(Search.Text, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            tb.Focus();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

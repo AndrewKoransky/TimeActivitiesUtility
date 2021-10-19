@@ -39,6 +39,20 @@
             <Button Grid.Column="0" Name="AddNewTimerButton" Content="Add" Margin="3" Command="{Binding AddNewTimerCommand}" />
             <Button Grid.Column="1" Name="ResetAllTimersButton" Content="Reset All" Margin="3" Command="{Binding ResetAllTimersCommand}" />
             <Button Grid.Column="2" Name="DeleteAllTimersButton" Content="Delete All" Margin="3" Command="{Binding DeleteAllTimersCommand}" />
+            <TextBox Grid.Column="3" x:Name="Search" TextChanged="Search_TextChanged" KeyDown="Search_KeyDown" MaxHeight="20">
+                <TextBox.Background>
+                    <ImageBrush ImageSource="Images/Search.png" Stretch="Uniform" AlignmentX="Right">
+                        <ImageBrush.Transform>
+                            <TransformGroup>
+                                <ScaleTransform />
+                                <SkewTransform/>
+                                <RotateTransform/>
+                                <TranslateTransform X="-3"/>
+                            </TransformGroup>
+                        </ImageBrush.Transform>
+                    </ImageBrush>
+                </TextBox.Background>
+            </TextBox>
             <Label Grid.Column="4" Name="TimeLabel" VerticalAlignment="Center" FontWeight="Bold" FontSize="16px" Content="{Binding TotalTime}" HorizontalAlignment="Center" Margin="3" />
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
