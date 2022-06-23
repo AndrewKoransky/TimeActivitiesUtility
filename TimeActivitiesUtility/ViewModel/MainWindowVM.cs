@@ -78,6 +78,7 @@ namespace TimeActivitiesUtility.ViewModel
 
         protected void AddTimer(ActivityTimerVM timerVm)
         {
+            timerVm.StopOrResetRequested += WriteData;
             timerVm.DeleteRequested += DeleteTimer;
             (timerVm as System.ComponentModel.INotifyPropertyChanged).PropertyChanged += TimerVM_PropertyChanged;
             TimerCollection.Add(timerVm);   
@@ -100,8 +101,10 @@ namespace TimeActivitiesUtility.ViewModel
         protected void DeleteTimer(ActivityTimerVM timerVm)
         {
             timerVm.DeleteRequested -= DeleteTimer;
+            timerVm.StopOrResetRequested -= WriteData;
             (timerVm as System.ComponentModel.INotifyPropertyChanged).PropertyChanged -= TimerVM_PropertyChanged;
             TimerCollection.Remove(timerVm);
+            WriteData();
         }
 
         public virtual ObservableCollection<ActivityTimerVM> TimerCollection { get; set; }
@@ -109,7 +112,6 @@ namespace TimeActivitiesUtility.ViewModel
         private TimeSpan totalTimeSpan = TimeSpan.Zero;
         private void UpdateTotalTime()
         {
-            TimeSpan prevTotalTimeSpan = totalTimeSpan;
             totalTimeSpan = TimeSpan.Zero;
             foreach (ActivityTimerVM timerVM in TimerCollection)
             {
@@ -122,12 +124,6 @@ namespace TimeActivitiesUtility.ViewModel
             else
             {
                 TotalTime = string.Format("{0:00} {1:00}", Convert.ToInt32(Math.Floor(totalTimeSpan.TotalHours)), Convert.ToInt32(totalTimeSpan.Minutes));
-            }
-
-            // if the visible total time has changed, save the data...
-            if ((prevTotalTimeSpan.Hours != totalTimeSpan.Hours) || (prevTotalTimeSpan.Minutes != totalTimeSpan.Minutes))
-            {
-                WriteData();
             }
         }
         #endregion

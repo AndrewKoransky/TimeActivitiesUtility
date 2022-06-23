@@ -84,12 +84,20 @@ namespace TimeActivitiesUtility.ViewModel
 
         public void Reset()
         {
+            if (Timer != TimeSpan.Zero)
+            {
+                StopOrResetRequested();
+            }
             IsTimerEnabled = false;
             Timer = TimeSpan.Zero;
         }
 
         public void StartStop()
         {
+            if (IsTimerEnabled)
+            {
+                StopOrResetRequested();
+            }
             IsTimerEnabled = !IsTimerEnabled;
         }
 
@@ -109,6 +117,9 @@ namespace TimeActivitiesUtility.ViewModel
         #region Events
         public delegate void DeleteRequestedEventHandler(ActivityTimerVM activityTimer);
         public event DeleteRequestedEventHandler DeleteRequested;
+
+        public delegate void StopOrResetRequestedEventHandler();
+        public event StopOrResetRequestedEventHandler StopOrResetRequested;
         #endregion
 
         public void Tick()
