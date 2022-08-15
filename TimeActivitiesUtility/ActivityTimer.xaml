@@ -20,6 +20,9 @@
                 <DataTrigger Binding="{Binding IsTimerEnabled}" Value="True">
                     <Setter Property="Foreground" Value="Red" />
                 </DataTrigger>
+                <DataTrigger Binding="{Binding IsTimerUsed}" Value="True">
+                    <Setter Property="FontWeight" Value="Bold" />
+                </DataTrigger>
             </Style.Triggers>
         </Style>
         <Style x:Key="StartStopButton" TargetType="Button">
@@ -79,7 +82,6 @@
             VerticalAlignment="Center"
             Content="{Binding TimerDisplayText}"
             FontSize="16px"
-            FontWeight="Bold" 
             Style="{StaticResource TimerLabel}"
             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity">
             <i:Interaction.Triggers>

@@ -33,6 +33,11 @@ namespace TimeActivitiesUtility.ViewModel
 
         public virtual bool IsTimerEnabled { get; protected set; }
 
+        /// <summary>
+        /// set to true when value is greater than zero...
+        /// </summary>
+        public virtual bool IsTimerUsed { get; protected set; }
+
         #region Model Interface
         public virtual string ActivityDescription { get; set; }
 
@@ -53,6 +58,7 @@ namespace TimeActivitiesUtility.ViewModel
                 {
                     TimerDisplayText = string.Format("{0:00} {1:00}", Convert.ToInt32(Math.Floor(_theTimer.TotalHours)), Convert.ToInt32(_theTimer.Minutes));
                 }
+                IsTimerUsed = (value > TimeSpan.Zero);
                 if (bNotify)
                 {
                     this.RaisePropertyChanged(x=>x.Timer);
