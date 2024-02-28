@@ -6,7 +6,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TimeActivitiesUtility.ViewModel
 {
@@ -23,6 +26,8 @@ namespace TimeActivitiesUtility.ViewModel
 
             TimerCollection.CollectionChanged += TimerCollection_CollectionChanged;
 
+            FilteredTimerCollection = new ObservableCollection<ActivityTimerVM>();
+
             ReadData();
 
             StartMasterTimer();
@@ -37,11 +42,96 @@ namespace TimeActivitiesUtility.ViewModel
 
         public virtual string TotalTime { get; protected set; }
 
+        string _searchText = string.Empty;
+        public virtual string SearchText
+        {
+            get
+            {
+                if (IsFilteredToActiveOnly)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return _searchText;
+                }
+            }
+            set
+            {
+                _searchText = value;
+            }
+        }
+
+        private bool _isFilteredToActiveOnly = false;
+        public virtual bool IsFilteredToActiveOnly
+        {
+            get
+            {
+                return _isFilteredToActiveOnly;
+            }
+            set
+            {
+                _isFilteredToActiveOnly = value;
+                UpdateFilteredTimers();
+                this.RaisePropertyChanged(x => x.IsSearchTextEnabled);
+                this.RaisePropertyChanged(x => x.SearchText);
+            }
+        }
+
+        public virtual bool IsSearchTextEnabled
+        {
+            get
+            {
+                return !IsFilteredToActiveOnly;
+            }
+        }
+
         #endregion
 
         #region Bindable commands
 
-        public virtual void AddNewTimer() {
+        public virtual void SearchTextChanged(string txt)
+        {
+            if (IsFilteredToActiveOnly)
+            {
+                SearchText = string.Empty;
+            }
+            else
+            {
+                SearchText = txt;
+            }
+            UpdateFilteredTimers();
+        }
+
+        public void UpdateFilteredTimers()
+        {
+            if (FilteredTimerCollection == null) return;
+            FilteredTimerCollection.Clear();
+            foreach (ActivityTimerVM timerVM in TimerCollection)
+            {
+                if (IsFilteredToActiveOnly)
+                {
+                    if (timerVM.Timer.TotalMilliseconds > 0)
+                    {
+                        FilteredTimerCollection.Add(timerVM);
+                    }
+                }
+                else if (timerVM.ActivityDescription.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    FilteredTimerCollection.Add(timerVM);
+                }
+            }
+        }
+
+        public void ClearFilter()
+        {
+            SearchText = string.Empty;
+            UpdateFilteredTimers();
+        }
+
+        public virtual void AddNewTimer() 
+        {
+            ClearFilter();
             AddTimer(ActivityTimerVM.Create());
         }
 
@@ -52,6 +142,7 @@ namespace TimeActivitiesUtility.ViewModel
 
         public virtual void ResetAllTimers()
         {
+            ClearFilter();
             foreach (ActivityTimerVM timerVM in TimerCollection)
             {
                 timerVM.Reset(); 
@@ -65,6 +156,7 @@ namespace TimeActivitiesUtility.ViewModel
 
         public virtual void DeleteAllTimers()
         {
+            ClearFilter();
             List<ActivityTimerVM> timerList = new List<ActivityTimerVM>(TimerCollection);
             foreach (ActivityTimerVM timerVM in timerList)
             {
@@ -95,6 +187,7 @@ namespace TimeActivitiesUtility.ViewModel
         private void TimerCollection_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             UpdateTotalTime();
+            UpdateFilteredTimers();
         }
 
 
@@ -108,6 +201,8 @@ namespace TimeActivitiesUtility.ViewModel
         }
 
         public virtual ObservableCollection<ActivityTimerVM> TimerCollection { get; set; }
+        public virtual ObservableCollection<ActivityTimerVM> FilteredTimerCollection { get; set; }
+
 
         private TimeSpan totalTimeSpan = TimeSpan.Zero;
         private void UpdateTotalTime()

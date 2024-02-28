@@ -39,7 +39,7 @@ namespace TimeActivitiesUtility.ViewModel
         public virtual bool IsTimerUsed { get; protected set; }
 
         #region Model Interface
-        public virtual string ActivityDescription { get; set; }
+        public virtual string ActivityDescription { get; set; } = string.Empty;
 
         private TimeSpan _theTimer = TimeSpan.Zero;
         public TimeSpan Timer {

@@ -34,12 +34,13 @@
                 <ColumnDefinition Width="80" />
                 <ColumnDefinition Width="80" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="80" />
+                <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="60" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Name="AddNewTimerButton" Content="Add" Margin="3" Command="{Binding AddNewTimerCommand}" />
             <Button Grid.Column="1" Name="ResetAllTimersButton" Content="Reset All" Margin="3" Command="{Binding ResetAllTimersCommand}" />
             <Button Grid.Column="2" Name="DeleteAllTimersButton" Content="Delete All" Margin="3" Command="{Binding DeleteAllTimersCommand}" />
-            <TextBox Grid.Column="3" x:Name="Search" TextChanged="Search_TextChanged" KeyDown="Search_KeyDown" MaxHeight="20">
+            <TextBox Grid.Column="3" x:Name="Search" MaxHeight="20" Text="{Binding SearchText}" IsEnabled="{Binding IsSearchTextEnabled}">
                 <TextBox.Background>
                     <ImageBrush ImageSource="Images/Search.png" Stretch="Uniform" AlignmentX="Right">
                         <ImageBrush.Transform>
@@ -52,11 +53,33 @@
                         </ImageBrush.Transform>
                     </ImageBrush>
                 </TextBox.Background>
+                <dx:Interaction.Behaviors>
+                    <dx:EventToCommand EventName="TextChanged" Command="{Binding SearchTextChangedCommand}" CommandParameter="{Binding ElementName=Search, Path=Text}" />
+                </dx:Interaction.Behaviors>
             </TextBox>
-            <Label Grid.Column="4" Name="TimeLabel" VerticalAlignment="Center" FontWeight="Bold" FontSize="16px" Content="{Binding TotalTime}" HorizontalAlignment="Center" Margin="3" />
+            <ToggleButton Grid.Column="4" Height="20" Width="20" Padding="3" IsChecked="{Binding IsFilteredToActiveOnly}" ToolTip="Active Only Filter">
+                <ToggleButton.Style>
+                    <Style TargetType="{x:Type ToggleButton}">
+                        <Style.Triggers>
+                            <Trigger Property="IsChecked" Value="false">
+                                <Setter Property="Opacity" Value=".3"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter Property="Opacity" Value="1"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ToggleButton.Style>
+                <ToggleButton.Template>
+                    <ControlTemplate>
+                        <Image Source="Images/Filter.png" />
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
+            <Label Grid.Column="5" Name="TimeLabel" VerticalAlignment="Center" FontWeight="Bold" FontSize="16px" Content="{Binding TotalTime}" HorizontalAlignment="Center" Margin="3" />
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
-            <ItemsControl ItemsSource="{Binding Path=TimerCollection}" />
+            <ItemsControl ItemsSource="{Binding Path=FilteredTimerCollection}" />
         </ScrollViewer>
     </Grid>
 </Window>
